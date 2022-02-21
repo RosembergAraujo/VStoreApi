@@ -38,7 +38,7 @@ namespace VStoreAPI.Controllers
             return Ok(await _userRepository.GetAsync());
         } 
         
-        [HttpGet("login")]
+        [HttpGet("auth")]
         public async Task<IActionResult> LoginAsync([FromBody] LoginUserViewModel model)
         {
             var user = await _userRepository.LoginAsync(model.Email, model.Password);
@@ -68,7 +68,7 @@ namespace VStoreAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(new { message = "Wrong user model"});
             
-            var role = User.IsInRole("admin") ? "client": "admin";
+            var role = User.IsInRole("admin") ? "admin": "client";
             
             var user = new User
             {
@@ -105,8 +105,8 @@ namespace VStoreAPI.Controllers
                 return BadRequest(new { message = "Wrong user model"});
 
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == model.Email);
-            
-            if(User.Identity != null && user.Id.ToString() != User.Identity.Name ) 
+
+            if (User.Identity is null || (user.Id.ToString() != User.Identity.Name && !User.IsInRole("admin")))
                 return Forbid();
 
             user.Cpf = model.Cpf;
@@ -117,7 +117,7 @@ namespace VStoreAPI.Controllers
 
             try
             {
-                //Update From repo
+                await _userRepository.Update(user);
                 user.Password = "";
                 return Ok(new {User = user});
             }

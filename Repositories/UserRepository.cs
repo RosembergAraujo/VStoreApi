@@ -39,14 +39,16 @@ namespace VStoreAPI.Repositories
             return user;
         }
 
-        public Task Delete(User user)
+        public async Task Delete(User user)
         {
-            throw new System.NotImplementedException();
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
         }
 
-        public Task Update(User user)
+        public async Task Update(User user)
         {
-            throw new System.NotImplementedException();
+            _context.Entry(user).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
         }
     }
 }
