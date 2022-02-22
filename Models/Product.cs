@@ -12,5 +12,6 @@ namespace VStoreAPI.Models
         public string Category { get; set; }
         public string Description { get; set; }
         public string Manufacturer { get; set; }
+        public Order Order { get; set; }
     }
 }

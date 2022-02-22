@@ -15,9 +15,17 @@ namespace VStoreAPI.Services
         
         public AppDbContext([FromServices] IConfiguration config) 
             => ConnString = config["connStr"];
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Order>()
+                .HasMany<Product>(p => p.Products)
+                .WithOne(o => o.Order);
+        }
         
         protected override void OnConfiguring(
             DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder.UseNpgsql(ConnString);
+
     }
 }
