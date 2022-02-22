@@ -2,6 +2,7 @@
 using System.Configuration;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using VStoreAPI.Services;
 using VStoreAPI.Models;
 using VStoreAPI.Repositories;
@@ -36,7 +37,14 @@ namespace VStoreAPI.Controllers
         public async Task<IActionResult> GetAllUsesAsync()
         {
             return Ok(await _userRepository.GetAsync());
-        } 
+        }
+
+        [HttpGet("{id:int}"), Authorize(Roles = "admin")]
+        public async Task<IActionResult> GetAsync([FromRoute] int id)
+        {
+            var user = await _userRepository.GetAsync(id);
+            return user is null? NotFound() : Ok(user);
+        }
         
         [HttpGet("auth")]
         public async Task<IActionResult> LoginAsync([FromBody] LoginUserViewModel model)
@@ -52,13 +60,6 @@ namespace VStoreAPI.Controllers
             {
                 return NotFound(new { message = "Wrong email or Password!" });
             }
-        }
-        
-        [HttpGet("{id}"), Authorize(Roles = "admin")]
-        public async Task<IActionResult> GetAsync([FromRoute] int id)
-        {
-            var user = await _userRepository.GetAsync(id);
-            return user is null? NotFound() : Ok(user);
         }
         
         [HttpPost]
@@ -94,7 +95,8 @@ namespace VStoreAPI.Controllers
             }
             catch (Exception e)
             {
-                return BadRequest(e);
+                Console.WriteLine(e);
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
 
@@ -123,9 +125,34 @@ namespace VStoreAPI.Controllers
             }
             catch (Exception e)
             {
-                return BadRequest(e);
+                Console.WriteLine(e);
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
                 
+        }
+        
+        [HttpDelete("{id:int}"), Authorize]
+        public async Task<IActionResult> Delete([FromRoute] int id)
+        {
+            if (User.IsInRole("admin") is false && User.Identity?.Name != id.ToString())
+                return Forbid();
+            
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (user is null)
+                return BadRequest(new {message = "User not found"});
+
+            try
+            {
+                Console.WriteLine($"Ok! {user}");
+                await _userRepository.Delete(user);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
         }
     }
 }
