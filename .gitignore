@@ -2,3 +2,12 @@ bin
 .idea
 appsettings.Development.json
 appsettings.json
+/shelf/
+/workspace.xml
+/modules.xml
+/contentModel.xml
+/projectSettingsUpdater.xml
+/.idea.VStoreAPI.iml
+/httpRequests/
+/dataSources/
+/dataSources.local.xml
