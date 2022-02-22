@@ -1,5 +1,6 @@
 bin
 .idea
+.vs
 appsettings.Development.json
 appsettings.json
 /shelf/
