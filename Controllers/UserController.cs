@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Configuration;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -10,7 +9,6 @@ using VStoreAPI.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Protocols;
 
 namespace VStoreAPI.Controllers
 {
@@ -54,7 +52,7 @@ namespace VStoreAPI.Controllers
             {
                 var token = new TokenService(_config).GenerateToken(user);
                 user.Password = string.Empty;
-                return Ok(new { User = user, Token = token, Role = User.IsInRole("admin")});
+                return Ok(new { User = user, Token = token });
             }
             else
             {
@@ -69,7 +67,7 @@ namespace VStoreAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(new { message = "Wrong user model"});
             
-            var role = User.IsInRole("admin") ? "admin": "client";
+            // var role = User.IsInRole("admin") ? "admin": "client";
             
             var user = new User
             {
@@ -79,13 +77,17 @@ namespace VStoreAPI.Controllers
                 UserName = model.UserName,
                 Birth = model.Birth,
                 Phone = model.Phone,
+                
                 Gender = model.Gender,
                 Date = DateTime.Now,
-                Role = role
+                Role = await _userRepository.GetAsync(1) is null ? "admin" : "client"
+                // Role = role
             };
             
             if (await _context.Users.FirstOrDefaultAsync(x => x.Email == model.Email) is not null) 
                 return BadRequest(new { message = "This email already registred" });
+            
+            //verifica um email valido
             try
             {
                 await _userRepository.CreateAsync(user);

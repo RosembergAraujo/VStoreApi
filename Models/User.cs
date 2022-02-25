@@ -16,6 +16,7 @@ namespace VStoreAPI.Models
         public char Gender { get; set; }
         public string Role { get; set; }
         public DateTime Date { get; set; } = DateTime.Now;
+        
         public ICollection<Order> Orders { get; set; }
 
     }

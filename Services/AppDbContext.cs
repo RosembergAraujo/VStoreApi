@@ -21,6 +21,9 @@ namespace VStoreAPI.Services
             modelBuilder.Entity<Order>()
                 .HasMany<Product>(p => p.Products)
                 .WithOne(o => o.Order);
+            modelBuilder.Entity<User>()
+                .HasMany<Order>(o => o.Orders)
+                .WithOne(u => u.User);
         }
         
         protected override void OnConfiguring(

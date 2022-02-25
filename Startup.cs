@@ -1,5 +1,4 @@
 using System;
-
 using System.Configuration;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

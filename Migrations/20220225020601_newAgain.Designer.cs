@@ -10,8 +10,8 @@ using VStoreAPI.Services;
 namespace VStoreAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20220219174822_newDb")]
-    partial class newDb
+    [Migration("20220225020601_newAgain")]
+    partial class newAgain
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -28,18 +28,13 @@ namespace VStoreAPI.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<int>("ProductId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Status")
                         .HasColumnType("text");
 
-                    b.Property<int>("UserId")
+                    b.Property<int?>("UserId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
 
                     b.HasIndex("UserId");
 
@@ -65,6 +60,9 @@ namespace VStoreAPI.Migrations
                     b.Property<string>("Manufacturer")
                         .HasColumnType("text");
 
+                    b.Property<int?>("OrderId")
+                        .HasColumnType("integer");
+
                     b.Property<float>("Price")
                         .HasColumnType("real");
 
@@ -72,6 +70,8 @@ namespace VStoreAPI.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
 
                     b.ToTable("Products");
                 });
@@ -117,21 +117,25 @@ namespace VStoreAPI.Migrations
 
             modelBuilder.Entity("VStoreAPI.Models.Order", b =>
                 {
-                    b.HasOne("VStoreAPI.Models.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("VStoreAPI.Models.User", "User")
                         .WithMany("Orders")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
+                        .HasForeignKey("UserId");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("VStoreAPI.Models.Product", b =>
+                {
+                    b.HasOne("VStoreAPI.Models.Order", "Order")
+                        .WithMany("Products")
+                        .HasForeignKey("OrderId");
+
+                    b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("VStoreAPI.Models.Order", b =>
+                {
+                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("VStoreAPI.Models.User", b =>

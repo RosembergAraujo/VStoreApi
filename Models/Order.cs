@@ -15,10 +15,9 @@ namespace VStoreAPI.Models
         // public int ProductsId { get; set; }
         public ICollection<Product> Products { get; set; }
         
-        [ForeignKey("User")]
-        public int UserId { get; set; }
+        // [ForeignKey("User")]
+        // public int UserId { get; set; }
         public User User { get; set; }
-
 
     }
 }

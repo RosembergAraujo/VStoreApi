@@ -3,11 +3,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using VStoreAPI.Models;
 using VStoreAPI.Repositories;
-using VStoreAPI.Services;
-using VStoreAPI.ViewModels;
 
 namespace VStoreAPI.Controllers
 {
@@ -20,7 +17,20 @@ namespace VStoreAPI.Controllers
         public ProductController(IProductRepository productRepository) 
             => _productRepository = productRepository;
 
-        [HttpPost, Authorize(Roles = "admin")]
+        [HttpGet, Authorize(Roles = "admin")]
+        public async Task<IActionResult> GetAllUsesAsync()
+        {
+            return Ok(await _productRepository.GetAsync());
+        }
+        
+        [HttpGet("{id:int}"), Authorize]
+        public async Task<IActionResult> Get(int id)
+        {
+            var product = await _productRepository.GetAsync(id);
+            return product is null ? NotFound(new {message = "Product not found"}) : Ok( new{ Product = product } );
+        }
+        
+        [HttpPost, Authorize]
         public async Task<IActionResult> PostAsync(
             [FromBody] Product model)
         {
@@ -39,5 +49,45 @@ namespace VStoreAPI.Controllers
             }
         }
         
+        [HttpPut, Authorize]
+        public async Task<IActionResult> PutAsync([FromBody] Product model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(new { message = "Wrong product model"});
+
+            try
+            {
+                await _productRepository.Update(model);
+                return Ok(new {Product = model});
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+                
+        }
+        
+        [HttpDelete("{id:int}"), Authorize]
+        public async Task<IActionResult> Delete([FromRoute] int id)
+        {
+
+            var product = await _productRepository.GetAsync(id);
+
+            if (product is null)
+                return NotFound(new {message = "Product not found"});
+
+            try
+            {
+                Console.WriteLine($"Ok! {product}");
+                await _productRepository.Delete(product);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        }
     }
 }

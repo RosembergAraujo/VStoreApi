@@ -11,6 +11,10 @@ namespace VStoreAPI.Repositories
         private readonly AppDbContext _context;
         public ProductRepository(AppDbContext context) => _context = context;
 
+        public async Task<IEnumerable<Product>> GetAsync()
+        {
+            return await _context.Products.ToListAsync();
+        }
 
         public async Task<Product> GetAsync(int id)
         {
