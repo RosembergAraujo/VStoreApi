@@ -6,6 +6,8 @@ namespace VStoreAPI.Repositories
 {
     public interface IOrderRepository
     {   
+        Task<IEnumerable<Order>> GetAsync();
+        
         Task<Order> GetAsync(int id);
             
         Task<Order> CreateAsync(Order order);

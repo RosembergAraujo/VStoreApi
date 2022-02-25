@@ -14,7 +14,7 @@ namespace VStoreAPI.Services
         private string ConnString { get; set; }
         
         public AppDbContext([FromServices] IConfiguration config) 
-            => ConnString = config["connStr"];
+            => ConnString = config["CONN_STRING"];
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

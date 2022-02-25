@@ -8,14 +8,11 @@ using VStoreAPI.Models;
 
 namespace VStoreAPI.Services
 {
-    public class TokenService
+    public static class TokenService
     {
-        private string HashJwt { get; set; }
+        private static string HashJwt { get; set; } = Startup.StaticConfig["JWT_HASH"];
 
-        public TokenService(IConfiguration config)
-            => HashJwt = config["HashJwt"];
-        
-        public string GenerateToken(User user)
+        public static string GenerateToken(User user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(HashJwt);

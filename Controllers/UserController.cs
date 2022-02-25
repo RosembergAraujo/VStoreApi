@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -18,15 +19,15 @@ namespace VStoreAPI.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IUserRepository _userRepository;
-        private readonly IConfiguration _config;
+        private readonly IOrderRepository _orderRepository;
 
 
         public UserController(
             IUserRepository userRepository, 
-            AppDbContext context, 
-            [FromServices] IConfiguration config)
+            IOrderRepository orderRepository,
+            AppDbContext context)
         {
-            _config = config;
+            _orderRepository = orderRepository;
             _context = context;
             _userRepository = userRepository;
         }
@@ -34,14 +35,31 @@ namespace VStoreAPI.Controllers
         [HttpGet, Authorize(Roles = "admin")]
         public async Task<IActionResult> GetAllUsesAsync()
         {
-            return Ok(await _userRepository.GetAsync());
+            var users = await _userRepository.GetAsync();
+            foreach (var user in users)
+                user.Orders = await _context.Orders
+                    .Where(x => x.UserId == user.Id)
+                    .ToListAsync();
+            
+            return Ok(users);
         }
 
         [HttpGet("{id:int}"), Authorize(Roles = "admin")]
         public async Task<IActionResult> GetAsync([FromRoute] int id)
         {
+            var tryParse = int.TryParse(User.Identity?.Name, out var userId);
+            if(tryParse is false) 
+                return BadRequest(new {message = "Token error"});
+
             var user = await _userRepository.GetAsync(id);
-            return user is null? NotFound() : Ok(user);
+            if (user is null)
+                return NotFound();
+            
+            user.Orders = await _context.Orders
+                .Where(x => x.UserId == user.Id)
+                .ToListAsync();
+            
+            return Ok(user);
         }
         
         [HttpGet("auth")]
@@ -50,7 +68,7 @@ namespace VStoreAPI.Controllers
             var user = await _userRepository.LoginAsync(model.Email, model.Password);
             if (user is not null)
             {
-                var token = new TokenService(_config).GenerateToken(user);
+                var token = TokenService.GenerateToken(user);
                 user.Password = string.Empty;
                 return Ok(new { User = user, Token = token });
             }
@@ -91,7 +109,7 @@ namespace VStoreAPI.Controllers
             try
             {
                 await _userRepository.CreateAsync(user);
-                var token = new TokenService(_config).GenerateToken(user);
+                var token = TokenService.GenerateToken(user);
 		        user.Password = string.Empty;
                 return Created($"users/{user.Id}", new { user = user, token = token });
             }

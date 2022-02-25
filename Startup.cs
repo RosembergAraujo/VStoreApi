@@ -19,13 +19,15 @@ namespace VStoreAPI
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            StaticConfig = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        private IConfiguration Configuration { get; }
+        public static IConfiguration StaticConfig { get; set; }
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var secretHash = Configuration["HashJwt"];
+            var secretHash = Configuration["JWT_HASH"];
             var key = Encoding.ASCII.GetBytes(secretHash);
             
             services.AddControllers().AddNewtonsoftJson(options =>

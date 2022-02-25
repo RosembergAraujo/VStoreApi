@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using VStoreAPI.Models;
 using VStoreAPI.Services;
@@ -9,8 +10,12 @@ namespace VStoreAPI.Repositories
     {
         private readonly AppDbContext _context;
         public OrderRepository(AppDbContext context) => _context = context;
-
-
+        
+        public async Task<IEnumerable<Order>> GetAsync()
+        {
+            return await _context.Orders.ToListAsync();
+        }
+        
         public async Task<Order> GetAsync(int id)
         {
             return await _context
