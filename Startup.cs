@@ -35,6 +35,7 @@ namespace VStoreAPI
             services.AddDbContext<AppDbContext>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<IOrderRepository, OrderRepository>();
             
             services.AddAuthentication(x =>
             {

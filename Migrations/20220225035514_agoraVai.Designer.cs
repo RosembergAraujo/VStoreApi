@@ -10,8 +10,8 @@ using VStoreAPI.Services;
 namespace VStoreAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20220225020601_newAgain")]
-    partial class newAgain
+    [Migration("20220225035514_agoraVai")]
+    partial class agoraVai
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -29,14 +29,18 @@ namespace VStoreAPI.Migrations
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Status")
+                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("UserId")
+                    b.Property<int>("UserForeignKey")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId1")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserForeignKey");
 
                     b.ToTable("Orders");
                 });
@@ -52,21 +56,24 @@ namespace VStoreAPI.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<float>("Discount")
                         .HasColumnType("real");
 
                     b.Property<string>("Manufacturer")
+                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("OrderId")
+                    b.Property<int>("OrderId")
                         .HasColumnType("integer");
 
                     b.Property<float>("Price")
                         .HasColumnType("real");
 
-                    b.Property<string>("ProductName")
+                    b.Property<string>("ProductNa")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -84,30 +91,37 @@ namespace VStoreAPI.Migrations
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Birth")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Cpf")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<char>("Gender")
                         .HasColumnType("character(1)");
 
                     b.Property<string>("Password")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Phone")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Role")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("UserName")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -119,7 +133,9 @@ namespace VStoreAPI.Migrations
                 {
                     b.HasOne("VStoreAPI.Models.User", "User")
                         .WithMany("Orders")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserForeignKey")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -128,7 +144,9 @@ namespace VStoreAPI.Migrations
                 {
                     b.HasOne("VStoreAPI.Models.Order", "Order")
                         .WithMany("Products")
-                        .HasForeignKey("OrderId");
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Order");
                 });

@@ -5,17 +5,15 @@ namespace VStoreAPI.Models
 {
     public class Product
     {
-        [Key]
-        public int Id { get; set; }
-        public string ProductName{ get; set; }
-        public float Price { get; set; }
-        public float Discount { get; set; }
+        [Key] public int Id { get; set; }
+        [Required] public string ProductNa { get; set; }
+        [Required] public float Price { get; set; }
+        public float Discount { get; set; } = 0;
         public string Category { get; set; }
-        public string Description { get; set; }
-        public string Manufacturer { get; set; }
+        [Required] public string Description { get; set; }
+        [Required] public string Manufacturer { get; set; }
         
-        // [ForeignKey("Order")]
-        // public int OrderId { get; set; }
-        public Order Order { get; set; }
+        public int OrderId { get; set; }
+        [ForeignKey("OrderId")] public Order Order { get; set; }
     }
 }

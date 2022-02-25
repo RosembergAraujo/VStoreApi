@@ -19,11 +19,9 @@ namespace VStoreAPI.Services
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Order>()
-                .HasMany<Product>(p => p.Products)
-                .WithOne(o => o.Order);
-            modelBuilder.Entity<User>()
-                .HasMany<Order>(o => o.Orders)
-                .WithOne(u => u.User);
+                .HasOne(o => o.User)
+                .WithMany(u => u.Orders)
+                .HasForeignKey(o => o.UserId);
         }
         
         protected override void OnConfiguring(

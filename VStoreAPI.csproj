@@ -23,6 +23,7 @@
     <Compile Remove="Middleware\**" />
     <Compile Remove="Controllers\LoginController.cs" />
     <Compile Remove="Controllers\TestAuthController.cs" />
+    <Compile Remove="ViewModels\CreateOrderModel.cs" />
   </ItemGroup>
 
   <ItemGroup>
