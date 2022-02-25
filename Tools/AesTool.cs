@@ -8,6 +8,6 @@ namespace VStoreAPI.Tools
 {
     public static class AesTool
     {
-        private static string EncryptHash { get; } = Startup.StaticConfig["AES_HASH"];
+        private static readonly string EncryptHash = Startup.StaticConfig["AES_HASH"];
     }
 }

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using VStoreAPI.Models;
 using VStoreAPI.Services;
+using System.Linq;
 
 namespace VStoreAPI.Repositories
 {
@@ -13,15 +14,26 @@ namespace VStoreAPI.Repositories
     
         public async Task<IEnumerable<User>> GetAsync()
         {
-            return await _context.Users.ToListAsync();
+            var users = await _context.Users.ToListAsync();
+            foreach (var user in users)
+                user.Orders = await _context.Orders
+                    .Where(x => x.UserId == user.Id)
+                    .ToListAsync();
+            return users;
         }
 
         public async Task<User> GetAsync(int id)
         {
-            return await _context
+             var user = await _context
                 .Users
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == id);
+             
+             user.Orders = await _context.Orders
+                 .Where(x => x.UserId == user.Id)
+                 .ToListAsync();
+             
+             return user;
         }
 
         public async Task<User> LoginAsync(string email, string password)
@@ -35,6 +47,7 @@ namespace VStoreAPI.Repositories
         public async Task<User> CreateAsync(User user)
         {
             await _context.Users.AddAsync(user);
+            user.Orders = new List<Order>();
             await _context.SaveChangesAsync();
             return user;
         }

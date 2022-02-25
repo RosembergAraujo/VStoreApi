@@ -17,34 +17,19 @@ namespace VStoreAPI.Controllers
     [Route("users")]
     public class UserController : ControllerBase
     {
-        private readonly AppDbContext _context;
         private readonly IUserRepository _userRepository;
-        private readonly IOrderRepository _orderRepository;
-
-
-        public UserController(
-            IUserRepository userRepository, 
-            IOrderRepository orderRepository,
-            AppDbContext context)
-        {
-            _orderRepository = orderRepository;
-            _context = context;
-            _userRepository = userRepository;
-        }
+        
+        public UserController(IUserRepository userRepository)
+            => _userRepository = userRepository;
         
         [HttpGet, Authorize(Roles = "admin")]
         public async Task<IActionResult> GetAllUsesAsync()
         {
             var users = await _userRepository.GetAsync();
-            foreach (var user in users)
-                user.Orders = await _context.Orders
-                    .Where(x => x.UserId == user.Id)
-                    .ToListAsync();
-            
             return Ok(users);
         }
 
-        [HttpGet("{id:int}"), Authorize(Roles = "admin")]
+        [HttpGet("{id:int}"), Authorize]
         public async Task<IActionResult> GetAsync([FromRoute] int id)
         {
             var tryParse = int.TryParse(User.Identity?.Name, out var userId);
@@ -54,11 +39,7 @@ namespace VStoreAPI.Controllers
             var user = await _userRepository.GetAsync(id);
             if (user is null)
                 return NotFound();
-            
-            user.Orders = await _context.Orders
-                .Where(x => x.UserId == user.Id)
-                .ToListAsync();
-            
+            user.Password = string.Empty;
             return Ok(user);
         }
         
@@ -84,9 +65,7 @@ namespace VStoreAPI.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(new { message = "Wrong user model"});
-            
-            // var role = User.IsInRole("admin") ? "admin": "client";
-            
+
             var user = new User
             {
                 Password = model.Password,
@@ -98,14 +77,13 @@ namespace VStoreAPI.Controllers
                 
                 Gender = model.Gender,
                 Date = DateTime.Now,
-                Role = await _userRepository.GetAsync(1) is null ? "admin" : "client"
+                Role = await _userRepository.GetAsync(1) is null ? "admin" : "client" //GAMBIARRA RETIRAR DPS
                 // Role = role
             };
             
-            if (await _context.Users.FirstOrDefaultAsync(x => x.Email == model.Email) is not null) 
-                return BadRequest(new { message = "This email already registred" });
+            if (await _userRepository.LoginAsync(model.Email, model.Password) is not null) 
+                return BadRequest(new { message = "This email already registered" });
             
-            //verifica um email valido
             try
             {
                 await _userRepository.CreateAsync(user);
@@ -126,7 +104,7 @@ namespace VStoreAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(new { message = "Wrong user model"});
 
-            var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == model.Email);
+            var user = await _userRepository.LoginAsync(model.Email, model.Password);
 
             if (User.Identity is null || (user.Id.ToString() != User.Identity.Name && !User.IsInRole("admin")))
                 return Forbid();
@@ -157,7 +135,7 @@ namespace VStoreAPI.Controllers
             if (User.IsInRole("admin") is false && User.Identity?.Name != id.ToString())
                 return Forbid();
             
-            var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
+            var user = await _userRepository.GetAsync(id);
 
             if (user is null)
                 return BadRequest(new {message = "User not found"});
