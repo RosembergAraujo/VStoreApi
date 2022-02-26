@@ -10,8 +10,8 @@ using VStoreAPI.Services;
 namespace VStoreAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20220225035514_agoraVai")]
-    partial class agoraVai
+    [Migration("20220226045338_PassEncrypt")]
+    partial class PassEncrypt
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -32,15 +32,12 @@ namespace VStoreAPI.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("UserForeignKey")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("UserId1")
+                    b.Property<int>("UserId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserForeignKey");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Orders");
                 });
@@ -133,7 +130,7 @@ namespace VStoreAPI.Migrations
                 {
                     b.HasOne("VStoreAPI.Models.User", "User")
                         .WithMany("Orders")
-                        .HasForeignKey("UserForeignKey")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

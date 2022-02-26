@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace VStoreAPI.Migrations
 {
-    public partial class agoraVai : Migration
+    public partial class PassEncrypt : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -36,15 +36,14 @@ namespace VStoreAPI.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Status = table.Column<string>(type: "text", nullable: false),
-                    UserForeignKey = table.Column<int>(type: "integer", nullable: false),
-                    UserId1 = table.Column<int>(type: "integer", nullable: false)
+                    UserId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Orders", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Orders_Users_UserForeignKey",
-                        column: x => x.UserForeignKey,
+                        name: "FK_Orders_Users_UserId",
+                        column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -76,9 +75,9 @@ namespace VStoreAPI.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Orders_UserForeignKey",
+                name: "IX_Orders_UserId",
                 table: "Orders",
-                column: "UserForeignKey");
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Products_OrderId",

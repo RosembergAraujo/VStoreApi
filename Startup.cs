@@ -1,5 +1,3 @@
-using System;
-using System.Configuration;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -7,7 +5,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Tokens;
 using VStoreAPI.Repositories;
 using VStoreAPI.Services;
@@ -27,8 +24,7 @@ namespace VStoreAPI
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var secretHash = Configuration["JWT_HASH"];
-            var key = Encoding.ASCII.GetBytes(secretHash);
+            var jwtKey = Encoding.ASCII.GetBytes(Configuration["JWT_HASH"]);
             
             services.AddControllers().AddNewtonsoftJson(options =>
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
@@ -50,7 +46,7 @@ namespace VStoreAPI
                 x.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    IssuerSigningKey = new SymmetricSecurityKey(jwtKey),
                     ValidateIssuer = false,
                     ValidateAudience = false
                 };

@@ -47,6 +47,9 @@ namespace VStoreAPI.Controllers
             {
                 await _userRepository.Update(user);
                 await _orderRepository.CreateAsync(order);
+                order.User.Orders.Add(order);
+                order.User.Password = string.Empty;
+                user.Password = string.Empty;
                 return Created($"orders/{order.Id}", new { Order = order, User = user });
             }
             catch (Exception e)

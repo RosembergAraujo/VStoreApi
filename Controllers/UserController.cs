@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -8,8 +8,7 @@ using VStoreAPI.Models;
 using VStoreAPI.Repositories;
 using VStoreAPI.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using VStoreAPI.Tools;
 
 namespace VStoreAPI.Controllers
 {
@@ -46,7 +45,7 @@ namespace VStoreAPI.Controllers
         [HttpGet("auth")]
         public async Task<IActionResult> LoginAsync([FromBody] LoginUserViewModel model)
         {
-            var user = await _userRepository.LoginAsync(model.Email, model.Password);
+            var user = await _userRepository.LoginAsync(model.Email, AesTool.Encrypt(model.Password));
             if (user is not null)
             {
                 var token = TokenService.GenerateToken(user);
@@ -68,20 +67,19 @@ namespace VStoreAPI.Controllers
 
             var user = new User
             {
-                Password = model.Password,
+                Password = AesTool.Encrypt(model.Password),
                 Email = model.Email,
                 Cpf = model.Cpf,
                 UserName = model.UserName,
                 Birth = model.Birth,
                 Phone = model.Phone,
-                
                 Gender = model.Gender,
                 Date = DateTime.Now,
-                Role = await _userRepository.GetAsync(1) is null ? "admin" : "client" //GAMBIARRA RETIRAR DPS
+                Role = "admin"
                 // Role = role
             };
             
-            if (await _userRepository.LoginAsync(model.Email, model.Password) is not null) 
+            if (await _userRepository.LoginAsync(model.Email, AesTool.Encrypt(model.Password)) is not null) 
                 return BadRequest(new { message = "This email already registered" });
             
             try
@@ -104,7 +102,7 @@ namespace VStoreAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(new { message = "Wrong user model"});
 
-            var user = await _userRepository.LoginAsync(model.Email, model.Password);
+            var user = await _userRepository.LoginAsync(model.Email, AesTool.Encrypt(model.Password));
 
             if (User.Identity is null || (user.Id.ToString() != User.Identity.Name && !User.IsInRole("admin")))
                 return Forbid();
