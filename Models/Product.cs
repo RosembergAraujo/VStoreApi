@@ -14,6 +14,6 @@ namespace VStoreAPI.Models
         [Required] public string Manufacturer { get; set; }
         
         public int OrderId { get; set; }
-        [ForeignKey("OrderId")] public Order Order { get; set; }
+        public Order Order { get; set; }
     }
 }

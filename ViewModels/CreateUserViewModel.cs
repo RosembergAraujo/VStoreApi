@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
+
 namespace VStoreAPI.ViewModels
 {
     public class CreateUserViewModel
@@ -11,6 +12,7 @@ namespace VStoreAPI.ViewModels
         [Required] public string Birth { get; set; }
         [Required] public string Phone { get; set; }
         [Required] public char Gender { get; set; }
+        public string Role { get; set; }
         
     }
 }

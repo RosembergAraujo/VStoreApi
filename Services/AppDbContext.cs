@@ -22,6 +22,11 @@ namespace VStoreAPI.Services
                 .HasOne(o => o.User)
                 .WithMany(u => u.Orders)
                 .HasForeignKey(o => o.UserId);
+            
+            modelBuilder.Entity<Product>()
+                .HasOne(p => p.Order)
+                .WithMany(o => o.Products)
+                .HasForeignKey(p => p.OrderId);
         }
         
         protected override void OnConfiguring(

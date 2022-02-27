@@ -1,5 +1,7 @@
 ﻿using System;
-using System.Security.Cryptography;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -17,6 +19,7 @@ namespace VStoreAPI.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
+        private readonly ICollection<string> _allowedRoles = Startup.StaticConfig["ALLOWED_ROLES"].Split(",");
         
         public UserController(IUserRepository userRepository)
             => _userRepository = userRepository;
@@ -28,13 +31,16 @@ namespace VStoreAPI.Controllers
             return Ok(users);
         }
 
-        [HttpGet("{id:int}"), Authorize]
+        [HttpGet("{id:int}")]
         public async Task<IActionResult> GetAsync([FromRoute] int id)
         {
-            var tryParse = int.TryParse(User.Identity?.Name, out var userId);
+            var tryParse = int.TryParse(User.Identity?.Name, out var tokenUserId);
             if(tryParse is false) 
                 return BadRequest(new {message = "Token error"});
 
+            if(id != tokenUserId || !(User.IsInRole("admin")))
+                return new ObjectResult(new {message = "Cant get this user"}) { StatusCode = 403};
+            
             var user = await _userRepository.GetAsync(id);
             if (user is null)
                 return NotFound();
@@ -53,9 +59,8 @@ namespace VStoreAPI.Controllers
                 return Ok(new { User = user, Token = token });
             }
             else
-            {
                 return NotFound(new { message = "Wrong email or Password!" });
-            }
+            
         }
         
         [HttpPost]
@@ -64,6 +69,17 @@ namespace VStoreAPI.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(new { message = "Wrong user model"});
+            
+            string userRole;
+            if (
+                User.Identity is {IsAuthenticated: true} &&
+                (User.IsInRole("admin") || User.IsInRole("dev")) &&
+                model.Role is not null &&
+                _allowedRoles.Contains(model.Role)
+                )
+                userRole = model.Role;
+            else
+                userRole = "client";
 
             var user = new User
             {
@@ -75,8 +91,7 @@ namespace VStoreAPI.Controllers
                 Phone = model.Phone,
                 Gender = model.Gender,
                 Date = DateTime.Now,
-                Role = "admin"
-                // Role = role
+                Role = userRole
             };
             
             if (await _userRepository.LoginAsync(model.Email, AesTool.Encrypt(model.Password)) is not null) 
@@ -104,9 +119,17 @@ namespace VStoreAPI.Controllers
 
             var user = await _userRepository.LoginAsync(model.Email, AesTool.Encrypt(model.Password));
 
-            if (User.Identity is null || (user.Id.ToString() != User.Identity.Name && !User.IsInRole("admin")))
-                return Forbid();
+            if (user is null)
+                return NotFound(new {message = "User Not Found"});
 
+            if (User.Identity is null || 
+                (user.Id.ToString() != User.Identity.Name &&
+                 !(User.IsInRole("admin") || User.IsInRole("dev")))) 
+                return new ObjectResult(new {message = "Cant change this user"}) { StatusCode = 403};
+
+            if(user.Role != model.Role && !(User.IsInRole("admin") || User.IsInRole("dev")))
+                return new ObjectResult(new {message = "Cant change role"}) { StatusCode = 403};
+            
             user.Cpf = model.Cpf;
             user.UserName = model.UserName;
             user.Birth = model.Birth;
@@ -116,7 +139,7 @@ namespace VStoreAPI.Controllers
             try
             {
                 await _userRepository.Update(user);
-                user.Password = "";
+                user.Password = string.Empty;
                 return Ok(new {User = user});
             }
             catch (Exception e)
