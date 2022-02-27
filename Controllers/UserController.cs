@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
+using System.Security.Principal;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -19,8 +18,7 @@ namespace VStoreAPI.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
-        private readonly ICollection<string> _allowedRoles = Startup.StaticConfig["ALLOWED_ROLES"].Split(",");
-        
+
         public UserController(IUserRepository userRepository)
             => _userRepository = userRepository;
         
@@ -38,7 +36,7 @@ namespace VStoreAPI.Controllers
             if(tryParse is false) 
                 return BadRequest(new {message = "Token error"});
 
-            if(id != tokenUserId || !(User.IsInRole("admin")))
+            if(id != tokenUserId && !_isUserWithHighPrivileges(User))
                 return new ObjectResult(new {message = "Cant get this user"}) { StatusCode = 403};
             
             var user = await _userRepository.GetAsync(id);
@@ -73,9 +71,9 @@ namespace VStoreAPI.Controllers
             string userRole;
             if (
                 User.Identity is {IsAuthenticated: true} &&
-                (User.IsInRole("admin") || User.IsInRole("dev")) &&
+                _isUserWithHighPrivileges(User) &&
                 model.Role is not null &&
-                _allowedRoles.Contains(model.Role)
+                AuthRoles.Roles.Contains(model.Role)
                 )
                 userRole = model.Role;
             else
@@ -118,16 +116,15 @@ namespace VStoreAPI.Controllers
                 return BadRequest(new { message = "Wrong user model"});
 
             var user = await _userRepository.LoginAsync(model.Email, AesTool.Encrypt(model.Password));
-
             if (user is null)
                 return NotFound(new {message = "User Not Found"});
 
-            if (User.Identity is null || 
+            if (User.Identity is null ||
                 (user.Id.ToString() != User.Identity.Name &&
-                 !(User.IsInRole("admin") || User.IsInRole("dev")))) 
+                 !_isUserWithHighPrivileges(User))) 
                 return new ObjectResult(new {message = "Cant change this user"}) { StatusCode = 403};
 
-            if(user.Role != model.Role && !(User.IsInRole("admin") || User.IsInRole("dev")))
+            if(user.Role != model.Role && !_isUserWithHighPrivileges(User))
                 return new ObjectResult(new {message = "Cant change role"}) { StatusCode = 403};
             
             user.Cpf = model.Cpf;
@@ -153,7 +150,7 @@ namespace VStoreAPI.Controllers
         [HttpDelete("{id:int}"), Authorize]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            if (User.IsInRole("admin") is false && User.Identity?.Name != id.ToString())
+            if (!_isUserWithHighPrivileges(User) && User.Identity?.Name != id.ToString())
                 return Forbid();
             
             var user = await _userRepository.GetAsync(id);
@@ -163,7 +160,6 @@ namespace VStoreAPI.Controllers
 
             try
             {
-                Console.WriteLine($"Ok! {user}");
                 await _userRepository.Delete(user);
                 return Ok();
             }
@@ -173,5 +169,15 @@ namespace VStoreAPI.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
+
+        private static bool _isUserWithHighPrivileges(IPrincipal claim) 
+            => AuthRoles.HighPrivilegesRoles.Any(claim.IsInRole);
+
+        private static bool _isUserWithLowPrivileges(IPrincipal claim) 
+            => AuthRoles.LowPrivilegesRoles.Any(claim.IsInRole);
+        
+        private static bool _isUserInRoles(IPrincipal claim) 
+            => AuthRoles.Roles.Any(claim.IsInRole);
+        
     }
 }
