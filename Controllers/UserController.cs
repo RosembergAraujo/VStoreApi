@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Security.Principal;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -58,7 +59,6 @@ namespace VStoreAPI.Controllers
             }
             else
                 return NotFound(new { message = "Wrong email or Password!" });
-            
         }
         
         [HttpPost]
@@ -67,6 +67,9 @@ namespace VStoreAPI.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(new { message = "Wrong user model"});
+            
+            if(Regex.IsMatch(model.Email, @"\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*"))
+                return BadRequest(new { message = "Wrong email format" });
             
             string userRole;
             if (

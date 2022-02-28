@@ -1,6 +1,7 @@
 bin
 .idea
 .vs
+.vscode
 obj
 appsettings.Development.json
 appsettings.json
