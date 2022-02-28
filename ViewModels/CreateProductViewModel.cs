@@ -1,9 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace VStoreAPI.Models
+namespace VStoreAPI.ViewModels
 {
-    public class Product
+    public class CreateProductViewModel
     {
         [Key] public int Id { get; set; }
         [Required] public string ProductName { get; set; }
@@ -12,8 +11,5 @@ namespace VStoreAPI.Models
         public string Category { get; set; }
         [Required] public string Description { get; set; }
         [Required] public string Manufacturer { get; set; }
-
-        public int? OrderId { get; set; }
-        public Order Order { get; set; } = null;
     }
 }

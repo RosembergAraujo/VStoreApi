@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using VStoreAPI.Models;
@@ -13,15 +14,31 @@ namespace VStoreAPI.Repositories
 
         public async Task<IEnumerable<Product>> GetAsync()
         {
-            return await _context.Products.ToListAsync();
+            var products = await _context
+                .Products
+                .AsNoTracking()
+                .ToListAsync();
+            
+            foreach (var product in products)
+                product.Order = await _context
+                    .Orders
+                    .FirstOrDefaultAsync(x => x.Id == product.OrderId);
+            
+            return products;
         }
 
         public async Task<Product> GetAsync(int id)
         {
-            return await _context
+            var product = await _context
                 .Products
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == id);
+            
+            product.Order = await _context
+                .Orders
+                .FirstOrDefaultAsync(x => x.Id == product.OrderId);
+            
+            return product;
         }
 
         public async Task<Product> CreateAsync(Product product)

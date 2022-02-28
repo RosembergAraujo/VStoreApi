@@ -24,10 +24,10 @@ namespace VStoreAPI.Controllers
             => _userRepository = userRepository;
         
         [HttpGet, Authorize(Roles = "admin")]
-        public async Task<IActionResult> GetAllUsesAsync()
+        public async Task<IActionResult> GetAllUsersAsync()
         {
             var users = await _userRepository.GetAsync();
-            return Ok(users);
+            return users is null ? NotFound() : Ok(new { Users = users });
         }
 
         [HttpGet("{id:int}")]
@@ -37,7 +37,7 @@ namespace VStoreAPI.Controllers
             if(tryParse is false) 
                 return BadRequest(new {message = "Token error"});
 
-            if(id != tokenUserId && !_isUserWithHighPrivileges(User))
+            if(id != tokenUserId && !AuthRoles.IsUserWithHighPrivileges(User))
                 return new ObjectResult(new {message = "Cant get this user"}) { StatusCode = 403};
             
             var user = await _userRepository.GetAsync(id);
@@ -68,13 +68,13 @@ namespace VStoreAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(new { message = "Wrong user model"});
             
-            if(Regex.IsMatch(model.Email, @"\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*"))
+            if(!Regex.IsMatch(model.Email, @"\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*"))
                 return BadRequest(new { message = "Wrong email format" });
             
             string userRole;
             if (
                 User.Identity is {IsAuthenticated: true} &&
-                _isUserWithHighPrivileges(User) &&
+                AuthRoles.IsUserWithHighPrivileges(User) &&
                 model.Role is not null &&
                 AuthRoles.Roles.Contains(model.Role)
                 )
@@ -105,9 +105,8 @@ namespace VStoreAPI.Controllers
 		        user.Password = string.Empty;
                 return Created($"users/{user.Id}", new { user = user, token = token });
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Console.WriteLine(e);
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
@@ -124,10 +123,10 @@ namespace VStoreAPI.Controllers
 
             if (User.Identity is null ||
                 (user.Id.ToString() != User.Identity.Name &&
-                 !_isUserWithHighPrivileges(User))) 
+                 !AuthRoles.IsUserWithHighPrivileges(User))) 
                 return new ObjectResult(new {message = "Cant change this user"}) { StatusCode = 403};
 
-            if(user.Role != model.Role && !_isUserWithHighPrivileges(User))
+            if(user.Role != model.Role && !AuthRoles.IsUserWithHighPrivileges(User))
                 return new ObjectResult(new {message = "Cant change role"}) { StatusCode = 403};
             
             user.Cpf = model.Cpf;
@@ -142,9 +141,8 @@ namespace VStoreAPI.Controllers
                 user.Password = string.Empty;
                 return Ok(new {User = user});
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Console.WriteLine(e);
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
                 
@@ -153,7 +151,7 @@ namespace VStoreAPI.Controllers
         [HttpDelete("{id:int}"), Authorize]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            if (!_isUserWithHighPrivileges(User) && User.Identity?.Name != id.ToString())
+            if (!AuthRoles.IsUserWithHighPrivileges(User) && User.Identity?.Name != id.ToString())
                 return Forbid();
             
             var user = await _userRepository.GetAsync(id);
@@ -166,21 +164,10 @@ namespace VStoreAPI.Controllers
                 await _userRepository.Delete(user);
                 return Ok();
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Console.WriteLine(e);
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
-
-        private static bool _isUserWithHighPrivileges(IPrincipal claim) 
-            => AuthRoles.HighPrivilegesRoles.Any(claim.IsInRole);
-
-        private static bool _isUserWithLowPrivileges(IPrincipal claim) 
-            => AuthRoles.LowPrivilegesRoles.Any(claim.IsInRole);
-        
-        private static bool _isUserInRoles(IPrincipal claim) 
-            => AuthRoles.Roles.Any(claim.IsInRole);
-        
     }
 }

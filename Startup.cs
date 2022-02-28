@@ -10,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using VStoreAPI.Repositories;
 using VStoreAPI.Services;
+using VStoreAPI.Tools;
 
 namespace VStoreAPI
 {
@@ -66,12 +67,17 @@ namespace VStoreAPI
             app.UseAuthentication();
             
             app.UseAuthorization();
-            
+
+            //app.UseEndpoints(endpoints =>
+            //{
+            //    endpoints.MapControllerRoute(
+            //        name: "default",
+            //        pattern: "{controller=User}/{action=Index}/{id?}");
+            //});
+
             app.UseEndpoints(endpoints =>
-            { 
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=User}/{action=Index}/{id?}");
+            {
+                endpoints.MapControllers();
             });
         }
     }

@@ -61,13 +61,13 @@ namespace VStoreAPI.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("OrderId")
+                    b.Property<int?>("OrderId")
                         .HasColumnType("integer");
 
                     b.Property<float>("Price")
                         .HasColumnType("real");
 
-                    b.Property<string>("ProductNa")
+                    b.Property<string>("ProductName")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -139,9 +139,7 @@ namespace VStoreAPI.Migrations
                 {
                     b.HasOne("VStoreAPI.Models.Order", "Order")
                         .WithMany("Products")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("OrderId");
 
                     b.Navigation("Order");
                 });

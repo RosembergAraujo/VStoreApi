@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using VStoreAPI.Models;
@@ -13,15 +14,52 @@ namespace VStoreAPI.Repositories
         
         public async Task<IEnumerable<Order>> GetAsync()
         {
-            return await _context.Orders.ToListAsync();
+            var orders = await _context
+                .Orders
+                .AsNoTracking()
+                .ToListAsync();
+
+            foreach (var order in orders)
+            {
+                order.Products = await _context
+                    .Products
+                    .Where(x => x.OrderId == order.Id)
+                    .ToListAsync();
+                order.User = await _context
+                    .Users
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(x => x.Id == order.UserId);
+            }
+                
+            
+            
+            return orders;
         }
-        
-        public async Task<Order> GetAsync(int id)
+        public async Task<IEnumerable<Order>> GetAsyncByUserId(int id)
         {
             return await _context
                 .Orders
                 .AsNoTracking()
+                .Where(x => x.UserId == id)
+                .ToListAsync();
+        }
+
+        public async Task<Order> GetAsync(int id)
+        {
+            var order = await _context
+                .Orders
+                .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == id);
+            
+            order.User = await _context
+                .Users
+                .FirstOrDefaultAsync(x => x.Id == order.UserId);
+            
+            order.Products = await _context.Products
+                .Where(x => x.OrderId == order.Id)
+                .ToListAsync();
+
+            return order;
         }
 
         public async Task<Order> CreateAsync(Order order)

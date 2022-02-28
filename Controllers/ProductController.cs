@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using VStoreAPI.Models;
 using VStoreAPI.Repositories;
+using VStoreAPI.Tools;
 
 namespace VStoreAPI.Controllers
 {
@@ -17,13 +18,14 @@ namespace VStoreAPI.Controllers
         public ProductController(IProductRepository productRepository) 
             => _productRepository = productRepository;
 
-        [HttpGet, Authorize(Roles = "admin")]
-        public async Task<IActionResult> GetAllUsesAsync()
+        [HttpGet]
+        public async Task<IActionResult> GetAllProductsAsync()
         {
-            return Ok(await _productRepository.GetAsync());
+            var products = await _productRepository.GetAsync();
+            return products is null ? NotFound() : Ok(new { Products = products });
         }
         
-        [HttpGet("{id:int}"), Authorize]
+        [HttpGet("{id:int}")]
         public async Task<IActionResult> Get(int id)
         {
             var product = await _productRepository.GetAsync(id);
@@ -60,15 +62,14 @@ namespace VStoreAPI.Controllers
                 await _productRepository.Update(model);
                 return Ok(new {Product = model});
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Console.WriteLine(e);
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
                 
         }
         
-        [HttpDelete("{id:int}"), Authorize]
+        [HttpDelete("{id:int}"), Authorize(Roles = "admin,dev")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
 
@@ -79,13 +80,11 @@ namespace VStoreAPI.Controllers
 
             try
             {
-                Console.WriteLine($"Ok! {product}");
-                await _productRepository.Delete(product);
+                //await _productRepository.Delete(product);
                 return Ok();
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Console.WriteLine(e);
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }

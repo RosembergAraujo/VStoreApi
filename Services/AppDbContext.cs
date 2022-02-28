@@ -26,7 +26,8 @@ namespace VStoreAPI.Services
             modelBuilder.Entity<Product>()
                 .HasOne(p => p.Order)
                 .WithMany(o => o.Products)
-                .HasForeignKey(p => p.OrderId);
+                .HasForeignKey(p => p.OrderId)
+                .IsRequired(false);
         }
         
         protected override void OnConfiguring(
