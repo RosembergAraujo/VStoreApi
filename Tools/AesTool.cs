@@ -9,13 +9,14 @@ namespace VStoreAPI.Tools
 {
     public static class AesTool
     {
-        private static readonly string EncryptHash = Startup.StaticConfig["AES_KEY"];
+        private static readonly string EncryptHashKey = Startup.StaticConfig["AES_KEY"];
+        private static readonly string EncryptHashIv = Startup.StaticConfig["AES_IV"];
         
         public static string Encrypt(string plainText)
         {
-            var initVectorBytes = Encoding.UTF8.GetBytes("pemgail9uzpgzl88");
+            var initVectorBytes = Encoding.UTF8.GetBytes(EncryptHashIv);
             var plainTextBytes = Encoding.UTF8.GetBytes(plainText);
-            var password = new PasswordDeriveBytes(EncryptHash, null);
+            var password = new PasswordDeriveBytes(EncryptHashKey, null);
             var keyBytes = password.GetBytes(256 / 8);
             var symmetricKey = new RijndaelManaged();
             symmetricKey.Mode = CipherMode.CBC;
@@ -36,7 +37,7 @@ namespace VStoreAPI.Tools
         {
             var initVectorBytes = Encoding.UTF8.GetBytes("pemgail9uzpgzl88");
             var cipherTextBytes = Convert.FromBase64String(cipherText);
-            var password = new PasswordDeriveBytes(EncryptHash, null);
+            var password = new PasswordDeriveBytes(EncryptHashKey, null);
             var keyBytes = password.GetBytes(256 / 8);
             var symmetricKey = new RijndaelManaged();
             symmetricKey.Mode = CipherMode.CBC;
