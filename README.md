@@ -32,5 +32,10 @@
 
 - `DATABASE_URL` Sendo sua connection string com o banco.
 - `JWT_HASH` Sua chave privada para gerar os JWTs, recomendo utilizar SHA256 para gerar sua chave.
-- `AES_KEY` Sua chave privada para geração e recuperação de informações usandas com algoritmo AES, recomendo utilizar SHA256 para gerar sua chave.
+- `AES_KEY` Sua chave privada para geração e recuperação de informações usadas com algoritmo AES, recomendo utilizar SHA256 para gerar sua chave.
 - `AES_IV` Algoritmos utilizando AES precisando de um vetor de bytes iniciais, você o coloca aqui.
+- Após as variáveis configuradas, basta navegar até a raiz do projeto e executar o seguinte comando para rodar localmente.
+
+```ps1
+dotnet run
+```
