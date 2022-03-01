@@ -10,11 +10,10 @@ namespace VStoreAPI.Services
         public DbSet<User> Users { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Order> Orders { get; set; }
-
         private string ConnString { get; set; }
         
         public AppDbContext([FromServices] IConfiguration config) 
-            => ConnString = config["CONN_STRING"];
+            => ConnString = config["DATABASE_URL"];
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
