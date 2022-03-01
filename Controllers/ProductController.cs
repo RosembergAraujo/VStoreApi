@@ -80,7 +80,7 @@ namespace VStoreAPI.Controllers
 
             try
             {
-                //await _productRepository.Delete(product);
+                await _productRepository.Delete(product);
                 return Ok();
             }
             catch (Exception)

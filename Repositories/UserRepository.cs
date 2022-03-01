@@ -16,9 +16,20 @@ namespace VStoreAPI.Repositories
         {
             var users = await _context.Users.ToListAsync();
             foreach (var user in users)
-                user.Orders = await _context.Orders
+            {
+                user.Orders = await _context
+                    .Orders
                     .Where(x => x.UserId == user.Id)
                     .ToListAsync();
+                foreach(var order in user.Orders)
+                {
+                    order.Products = await _context
+                        .Products
+                        .Where(x => x.OrderId == order.Id)
+                        .ToListAsync();
+                }
+
+            }
             return users;
         }
 
@@ -32,7 +43,13 @@ namespace VStoreAPI.Repositories
              user.Orders = await _context.Orders
                  .Where(x => x.UserId == user.Id)
                  .ToListAsync();
-             
+            
+            foreach(var order in user.Orders)
+                order.Products = await _context
+                    .Products
+                    .Where(x => x.OrderId == order.Id)
+                    .ToListAsync();                
+            
              return user;
         }
 
