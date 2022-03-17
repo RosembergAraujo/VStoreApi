@@ -21,20 +21,24 @@
 
 ### Instruções de execução
 
-- Após o clone do projeto você precisa criar um `appsettings.json` na raiz com as seguintes variáveis:
+- Após o clone do projeto você precisa criar um arquivo chamado `.env` na raiz com as seguintes variáveis:
 
-```json
-"DATABASE_URL": "",
-"JWT_HASH": "",
-"AES_KEY": "",
-"AES_IV": ""
+```.env
+ENV=DEV
+DATABASE_URL_DEV=
+DATABASE_URL=
+JWT_HASH=
+AES_KEY=
+AES_IV=
 ```
+> Poderá seguir o exemplo do arquivo .env-example
 
 - `DATABASE_URL` Sendo sua connection string com o banco.
 - `JWT_HASH` Sua chave privada para gerar os JWTs, recomendo utilizar SHA256 para gerar sua chave.
 - `AES_KEY` Sua chave privada para geração e recuperação de informações usadas com algoritmo AES, recomendo utilizar SHA256 para gerar sua chave.
 - `AES_IV` Algoritmos utilizando AES precisando de um vetor de bytes iniciais, você o coloca aqui.
-- Após as variáveis configuradas, basta navegar até a raiz do projeto e executar o seguinte comando para rodar localmente.
+
+- ##### Após as variáveis configuradas, basta navegar até a raiz do projeto e executar o seguinte comando para rodar localmente.
 
 ```ps1
 dotnet run
