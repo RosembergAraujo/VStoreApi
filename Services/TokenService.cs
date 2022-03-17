@@ -2,7 +2,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using VStoreAPI.Models;
 
@@ -10,7 +9,7 @@ namespace VStoreAPI.Services
 {
     public static class TokenService
     {
-        private static string HashJwt { get; set; } = Startup.StaticConfig["JWT_HASH"];
+        private static string HashJwt { get; set; } = Environment.GetEnvironmentVariable("JWT_HASH");
 
         public static string GenerateToken(User user)
         {

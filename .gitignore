@@ -1,7 +1,9 @@
 bin
+/dist
 .idea
 .vs
 .vscode
+.env
 obj
 appsettings.Development.json
 appsettings.json

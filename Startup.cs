@@ -18,12 +18,12 @@ namespace VStoreAPI
     {
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
-            StaticConfig = configuration;
+            //Configuration = configuration;
+            //StaticConfig = configuration;
         }
 
-        private IConfiguration Configuration { get; }
-        public static IConfiguration StaticConfig { get; set; }
+        //private IConfiguration Configuration { get; }
+        //public static IConfiguration StaticConfig { get; set; }
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -48,7 +48,7 @@ namespace VStoreAPI
                 x.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration["JWT_HASH"])),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Environment.GetEnvironmentVariable("JWT_HASH"))),
                     ValidateIssuer = false,
                     ValidateAudience = false
                 };

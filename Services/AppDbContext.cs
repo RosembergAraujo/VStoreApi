@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using VStoreAPI.Models;
+using System;
 
 namespace VStoreAPI.Services
 {
@@ -11,9 +12,18 @@ namespace VStoreAPI.Services
         public DbSet<Product> Products { get; set; }
         public DbSet<Order> Orders { get; set; }
         private string ConnString { get; set; }
-        
-        public AppDbContext([FromServices] IConfiguration config) 
-            => ConnString = config["DATABASE_URL"];
+
+        public AppDbContext()
+        {
+            if (Environment.GetEnvironmentVariable("ENV").Equals("DEV"))
+                ConnString = Environment.GetEnvironmentVariable("DATABASE_URL_DEV");
+
+            else if (Environment.GetEnvironmentVariable("ENV").Equals("PROD"))
+                ConnString = Environment.GetEnvironmentVariable("DATABASE_URL");
+
+            else
+                throw new InvalidOperationException($"ENV var is not setted in .env file at project root");
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

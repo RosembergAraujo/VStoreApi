@@ -9,8 +9,8 @@ namespace VStoreAPI.Tools
 {
     public static class AesTool
     {
-        private static readonly string EncryptHashKey = Startup.StaticConfig["AES_KEY"];
-        private static readonly string EncryptHashIv = Startup.StaticConfig["AES_IV"];
+        private static readonly string EncryptHashKey = Environment.GetEnvironmentVariable("AES_KEY");
+        private static readonly string EncryptHashIv = Environment.GetEnvironmentVariable("AES_IV");
         
         public static string Encrypt(string plainText)
         {
@@ -18,9 +18,11 @@ namespace VStoreAPI.Tools
             var plainTextBytes = Encoding.UTF8.GetBytes(plainText);
             var password = new PasswordDeriveBytes(EncryptHashKey, null);
             var keyBytes = password.GetBytes(256 / 8);
-            var symmetricKey = new RijndaelManaged();
-            symmetricKey.Mode = CipherMode.CBC;
-            symmetricKey.Padding = PaddingMode.PKCS7;
+            var symmetricKey = new RijndaelManaged
+            {
+                Mode = CipherMode.CBC,
+                Padding = PaddingMode.PKCS7
+            };
             var encryptor = symmetricKey.CreateEncryptor(keyBytes, initVectorBytes);
             var memoryStream = new MemoryStream();
             var cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write);
