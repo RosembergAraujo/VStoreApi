@@ -15,7 +15,7 @@
 - Gerenciamento de versões de development e em produção.
 - Informações sensíveis configuradas a partir da VPS, como connection strings e chaves de hash.
 - Conteinerização com docker pois queria usar o heroku como hospedagem para API tambem porém ele não aceita C# nativamente.
-- Docker composer para gerenciar o conteiner e algumas variaveis de ambiente como as portas que os heroku exporta dinamicamente via load balancer, acredito ser NGINX.
+- Docker composer para gerenciar o conteiner e algumas variáveis de ambiente como as portas que os heroku exporta dinamicamente via load balancer, acredito ser NGINX.
 
 ## Dependências
 - #### Execução local
@@ -58,7 +58,7 @@ dotnet run
 ```
 
 ## Publicando
-__IMPORTANTE__. Para utilizar `PostgreeSQL` com a aplicação publicada, você irá precisar um banco hospedado, o heroku tem uma ferramente muito fácil para isso, é um addon, procure sobre. Em seguida configure as variaveis de ambiente no seu `.env` com a connection string do seu banco hospedado antes de criar sua imagem docker
+__IMPORTANTE__. Para utilizar `PostgreeSQL` com a aplicação publicada, você irá precisar um banco hospedado, o heroku tem uma ferramenta muito fácil para isso, é um addon, procure sobre. Em seguida configure as variáveis de ambiente no seu `.env` com a connection string do seu banco hospedado antes de criar sua imagem docker
 
 ### ASP.NET core 🚀
 Vamos compilar o projeto com o comando.
@@ -79,11 +79,11 @@ Opcionalmente baixe a imagem base na versão correta com o comando:
 docker pull bitnami/aspnet-core:5
 ```
 
-__IMPORTANTE__ antes de criar sua imagem você deve mover o arquivo  `.env` preenchido com suas variaveis dentro da pasta `/dist` ou você deve configura-las dentro do heroku posteriormente, as variaveis configuradas no heroku tem prioridade sobre as do `.env`
+__IMPORTANTE__ antes de criar sua imagem você deve mover o arquivo  `.env` preenchido com suas variáveis dentro da pasta `/dist` ou você deve configura-las dentro do heroku posteriormente, as variáveis configuradas no heroku tem prioridade sobre as do `.env`
 
 - __Exemplo:__
 
-![ Heroku env variables ](URL da imagem)
+![ Heroku env variables ](https://github.com/RosembergAraujo/VStoreApi/blob/main/README_assets/herokuvars.png)
 
 Em seguida gere um build da sua imagem
 
@@ -125,4 +125,4 @@ heroku open
 
 Se aparecer uma tela como essa, parabéns, sua API está publicada 😎😁
 
-![ HelloWorldPage ](URL da imagem)
+![ HelloWorldPage ](https://github.com/RosembergAraujo/VStoreApi/blob/main/README_assets/ok.png)
