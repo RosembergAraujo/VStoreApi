@@ -2,7 +2,7 @@
 
 ## Resumo
 
-- Comecei porque queria estudar ASP.NET, principalmente APIs e convergiu que um amigo que estava estudando front-end queria uma API pra consumir, unindo ambos os projetos, iniciei uma API para uma loja virtual genérica e a coisa foi escalando demais para um iniciante na tecnologia, sistema de autenticação, encriptação de senha, banco em cloud e chegando a finalmente hospedagem da API, foi mais difícil do que eu achei que seria mas me sinto orgulhoso de ter conseguido sozinho sem seguir tutorial, quebrando muito a cara, vendo muita coisa dando errado mas aprendendo bastante no caminho.
+- Comecei porque queria estudar ASP.NET, principalmente APIs e convergiu que um amigo que estava estudando front-end queria uma API pra consumir, unindo ambos os projetos, iniciei uma API para uma loja virtual genérica e a coisa foi escalando demais para um quem estava iniciando na tecnologia, sistema de autenticação, encriptação de senha, banco em cloud, containerização, orquestragem com compose e chegando a finalmente hospedagem da API, foi mais difícil do que eu achei que seria, mas me sinto orgulhoso de ter conseguido sozinho sem seguir tutorial, quebrando muito a cara, vendo muita coisa dando errado mas aprendendo bastante no caminho.
 
 
 ## Funcionalidades e desafios
